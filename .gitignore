@@ -1,13 +1,12 @@
 # Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+/.pnp
+.pnp.js
 
-# Build output
+# Build outputs
 build/
 dist/
+dist-ssr/
 *.local
 
 # Environment variables
@@ -18,13 +17,19 @@ dist/
 .env.production.local
 
 # Logs
-logs/
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea/
+!.vscode/settings.json
+.idea
 .DS_Store
 *.suo
 *.ntvs*
@@ -32,28 +37,23 @@ logs/
 *.sln
 *.sw?
 
-# OS files
-Thumbs.db
-.DS_Store
-desktop.ini
-
 # Testing
 coverage/
-.nyc_output/
 *.lcov
+.nyc_output
 
 # Temporary files
 *.tmp
 *.temp
 .cache/
 
-# Package manager
-.pnp
-.pnp.js
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
+# OS files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
 
 # Vite
 .vite/
@@ -62,3 +62,14 @@ vite.config.ts.timestamp-*
 # TypeScript
 *.tsbuildinfo
 
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Misc
+.turbo
