@@ -1,0 +1,92 @@
+:root {
+  --font-size: 16px;
+  
+  /* Realm of Shadows Design Tokens */
+  --dark-shadow: #0A0A0A;
+  --deep-black: #1A1A1A;
+  --charcoal-gray: #2A2A2A;
+  --royal-gold: #D4AF37;
+  --blood-red: #8B0000;
+  --midnight-gray: #1F1F1F;
+  --ember-orange: #FF6B35;
+  --shadow-purple: #4A148C;
+  
+  --background: var(--dark-shadow);
+  --foreground: oklch(0.985 0 0);
+  --card: var(--deep-black);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: var(--charcoal-gray);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: var(--royal-gold);
+  --primary-foreground: var(--dark-shadow);
+  --secondary: var(--charcoal-gray);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: var(--charcoal-gray);
+  --muted-foreground: #717182;
+  --accent: var(--royal-gold);
+  --accent-foreground: var(--dark-shadow);
+  --destructive: var(--blood-red);
+  --destructive-foreground: #ffffff;
+  --border: rgba(212, 175, 55, 0.2);
+  --input: transparent;
+  --input-background: var(--charcoal-gray);
+  --switch-background: #cbced4;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: var(--royal-gold);
+  --chart-1: var(--royal-gold);
+  --chart-2: var(--blood-red);
+  --chart-3: var(--ember-orange);
+  --chart-4: var(--shadow-purple);
+  --chart-5: #D4AF37;
+  --radius: 0.5rem;
+  --sidebar: var(--deep-black);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: var(--royal-gold);
+  --sidebar-primary-foreground: var(--dark-shadow);
+  --sidebar-accent: var(--charcoal-gray);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: rgba(212, 175, 55, 0.2);
+  --sidebar-ring: var(--royal-gold);
+}
+
+.dark {
+  --background: var(--dark-shadow);
+  --foreground: oklch(0.985 0 0);
+  --card: var(--deep-black);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: var(--charcoal-gray);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: var(--royal-gold);
+  --primary-foreground: var(--dark-shadow);
+  --secondary: var(--charcoal-gray);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: var(--charcoal-gray);
+  --muted-foreground: #717182;
+  --accent: var(--royal-gold);
+  --accent-foreground: var(--dark-shadow);
+  --destructive: var(--blood-red);
+  --destructive-foreground: #ffffff;
+  --border: rgba(212, 175, 55, 0.2);
+  --input: var(--charcoal-gray);
+  --ring: var(--royal-gold);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: var(--royal-gold);
+  --chart-2: var(--blood-red);
+  --chart-3: var(--ember-orange);
+  --chart-4: var(--shadow-purple);
+  --chart-5: #D4AF37;
+  --sidebar: var(--deep-black);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: var(--royal-gold);
+  --sidebar-primary-foreground: var(--dark-shadow);
+  --sidebar-accent: var(--charcoal-gray);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: rgba(212, 175, 55, 0.2);
+  --sidebar-ring: var(--royal-gold);
+}
+
+html {
+  font-size: var(--font-size);
+}

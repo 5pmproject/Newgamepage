@@ -1,0 +1,519 @@
+# Cursor Rules for Pre-registration Landing Page (Realm of Shadows)
+
+## Project Overview
+- **Project Type**: Game Pre-registration Landing Page (Dark Fantasy RPG)
+- **Tech Stack**: React 18.3.1 + TypeScript + Vite 6.4.1 + Tailwind CSS 3.4.18
+- **UI Library**: Radix UI + shadcn/ui components
+- **Internationalization**: Korean, English, Japanese (Context API)
+- **Design Theme**: Dark fantasy with gold accents (#0A0A0A background, #D4AF37 primary)
+
+---
+
+## 1. 아키텍처 패턴 (Architecture Patterns)
+
+### Component Architecture
+- **컴포넌트 구조**: Atomic Design 패턴 준수
+  - `src/components/ui/`: 재사용 가능한 기본 UI 컴포넌트 (atoms)
+  - `src/components/`: 페이지 섹션 컴포넌트 (organisms)
+  - 각 컴포넌트는 단일 책임 원칙(SRP) 준수
+
+### State Management
+- **Context API 사용**: 전역 상태 관리
+  - `src/contexts/`: Context 파일 위치
+  - 언어 설정, 테마, 사용자 상태 등
+  - Props drilling 최소화
+
+### Code Organization
+```
+src/
+├── components/          # 섹션 컴포넌트
+│   ├── ui/             # 재사용 UI 컴포넌트 (shadcn/ui)
+│   ├── figma/          # Figma 관련 컴포넌트
+│   └── [Section]*.tsx  # 페이지 섹션 (HeroSection, StorySection 등)
+├── contexts/           # React Context
+├── lib/                # 유틸리티 함수 및 설정
+├── styles/             # 글로벌 스타일 및 디자인 토큰
+└── main.tsx           # 앱 진입점
+```
+
+### Component Design Principles
+- **Composition over Inheritance**: 컴포넌트 합성 우선
+- **Props Interface**: TypeScript 인터페이스로 명확한 타입 정의
+- **Default Props**: 선택적 props에 기본값 제공
+- **Error Boundaries**: 에러 처리 계층 구현
+
+### Data Flow
+- **Unidirectional Data Flow**: 단방향 데이터 흐름 유지
+- **Immutable State**: 불변성 원칙 준수
+- **Controlled Components**: 제어 컴포넌트 패턴 사용
+
+---
+
+## 2. 네이밍 컨벤션 (Naming Conventions)
+
+### 파일 및 폴더 명명
+- **컴포넌트 파일**: PascalCase + `.tsx`
+  - ✅ `HeroSection.tsx`, `NavigationBar.tsx`
+  - ❌ `hero-section.tsx`, `navigation_bar.tsx`
+
+- **유틸리티 파일**: camelCase + `.ts`
+  - ✅ `i18n.ts`, `apiClient.ts`
+  - ❌ `I18n.ts`, `APIClient.ts`
+
+- **스타일 파일**: kebab-case + `.css`
+  - ✅ `globals.css`, `index.css`
+  - ❌ `Globals.css`, `Index.css`
+
+- **폴더명**: camelCase 또는 kebab-case
+  - ✅ `components`, `contexts`, `lib`
+  - ❌ `Components`, `Contexts`, `Lib`
+
+### 변수 및 함수 명명
+- **변수**: camelCase
+  - ✅ `userName`, `isLoading`, `apiResponse`
+  - ❌ `user_name`, `UserName`, `API_RESPONSE`
+
+- **상수**: UPPER_SNAKE_CASE
+  - ✅ `MAX_RETRY_COUNT`, `API_BASE_URL`, `DEFAULT_LANGUAGE`
+  - ❌ `maxRetryCount`, `apiBaseUrl`
+
+- **함수**: camelCase + 동사 시작
+  - ✅ `handleClick`, `fetchUserData`, `validateEmail`
+  - ❌ `clickHandler`, `userData`, `emailValidation`
+
+- **이벤트 핸들러**: `handle[Action]` 또는 `on[Action]`
+  - ✅ `handleSubmit`, `onClick`, `onReserveClick`
+  - ❌ `submit`, `clickEvent`, `reserveClick`
+
+### React 컴포넌트 명명
+- **컴포넌트명**: PascalCase + 명사
+  - ✅ `NavigationBar`, `ReservationForm`, `CharactersSection`
+  - ❌ `navigationBar`, `reservationForm`, `Characters_Section`
+
+- **Custom Hooks**: camelCase + `use` 접두사
+  - ✅ `useLanguage`, `useFormValidation`, `useApiQuery`
+  - ❌ `languageHook`, `UseLanguage`, `formValidation`
+
+- **Context**: PascalCase + `Context` 접미사
+  - ✅ `LanguageContext`, `ThemeContext`, `UserContext`
+  - ❌ `Language`, `contextTheme`, `user_context`
+
+### TypeScript 타입 및 인터페이스
+- **Interface**: PascalCase + `I` 접두사 또는 명사형
+  - ✅ `Translation`, `Language`, `ReservationFormProps`
+  - ✅ `IUser`, `IApiResponse` (선택적)
+
+- **Type Alias**: PascalCase
+  - ✅ `Language`, `ApiResponse`, `ComponentProps`
+  - ❌ `language`, `api_response`, `componentProps`
+
+- **Enum**: PascalCase
+  - ✅ `UserRole`, `ApiStatus`, `LanguageCode`
+  - ❌ `userRole`, `API_STATUS`, `language_code`
+
+### CSS 클래스 명명 (Tailwind 외)
+- **Custom Classes**: kebab-case
+  - ✅ `hero-gradient`, `character-card`, `glow-effect`
+  - ❌ `heroGradient`, `characterCard`, `Glow_Effect`
+
+- **BEM 패턴** (필요 시):
+  - ✅ `nav__item`, `nav__item--active`, `button--primary`
+
+### 다국어 키 명명
+- **i18n Keys**: 계층적 구조 + camelCase
+  - ✅ `nav.story`, `hero.title`, `reservation.form.nickname`
+  - ❌ `nav_story`, `heroTitle`, `reservation-form-nickname`
+
+---
+
+## 3. 보안 원칙 (Security Principles)
+
+### 데이터 보호
+- **민감 정보 처리**:
+  - ❌ 절대 환경 변수를 코드에 하드코딩하지 않음
+  - ✅ `.env.local` 파일 사용 (Git에서 제외)
+  - ✅ `VITE_` 접두사로 클라이언트 노출 변수 명시
+  ```typescript
+  // ✅ Good
+  const apiUrl = import.meta.env.VITE_API_URL;
+  
+  // ❌ Bad
+  const apiUrl = "https://api.example.com/secret-key-12345";
+  ```
+
+### XSS (Cross-Site Scripting) 방지
+- **사용자 입력 검증**:
+  - ✅ React의 자동 이스케이프 활용
+  - ❌ `dangerouslySetInnerHTML` 사용 금지 (특별한 경우 제외)
+  - ✅ DOMPurify 라이브러리 사용 (HTML 삽입 필요 시)
+
+### 입력 검증
+- **폼 검증**:
+  - ✅ 클라이언트 + 서버 이중 검증
+  - ✅ React Hook Form + Zod/Yup 스키마 검증
+  - ✅ 이메일, 전화번호 정규식 검증
+  ```typescript
+  // ✅ Good
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    throw new Error('Invalid email');
+  }
+  ```
+
+### API 보안
+- **요청 보안**:
+  - ✅ HTTPS 사용 필수
+  - ✅ CORS 정책 준수
+  - ✅ Rate limiting 구현
+  - ✅ API 키는 환경 변수로 관리
+
+### 의존성 보안
+- **패키지 관리**:
+  - ✅ 정기적인 `npm audit` 실행
+  - ✅ 보안 취약점 발견 시 즉시 업데이트
+  - ❌ 신뢰할 수 없는 패키지 설치 금지
+  ```bash
+  # 매주 실행
+  npm audit
+  npm audit fix
+  ```
+
+### 인증 및 권한
+- **토큰 관리**:
+  - ❌ localStorage에 민감한 토큰 저장 금지
+  - ✅ httpOnly 쿠키 사용 권장
+  - ✅ JWT 토큰 만료 시간 설정
+
+### 콘텐츠 보안 정책 (CSP)
+- **CSP 헤더 설정**:
+  - ✅ 인라인 스크립트 제한
+  - ✅ 신뢰할 수 있는 소스만 허용
+  - ✅ `index.html`에 CSP 메타 태그 추가
+
+---
+
+## 4. 절대 금지 사항 (Absolute Prohibitions)
+
+### 코드 품질
+❌ **절대 금지**:
+1. **console.log 프로덕션 배포**
+   ```typescript
+   // ❌ Bad - 프로덕션 환경에 남겨두면 안 됨
+   console.log('User data:', userData);
+   
+   // ✅ Good - 개발 환경에서만
+   if (import.meta.env.DEV) {
+     console.log('Debug:', data);
+   }
+   ```
+
+2. **any 타입 남용**
+   ```typescript
+   // ❌ Bad
+   const data: any = fetchData();
+   
+   // ✅ Good
+   interface UserData {
+     id: string;
+     name: string;
+   }
+   const data: UserData = fetchData();
+   ```
+
+3. **주석 처리된 코드 커밋**
+   ```typescript
+   // ❌ Bad
+   // const oldFunction = () => {
+   //   // old implementation
+   // };
+   
+   // ✅ Good - Git 히스토리 활용
+   const newFunction = () => {
+     // new implementation
+   };
+   ```
+
+4. **하드코딩된 URL 및 설정값**
+   ```typescript
+   // ❌ Bad
+   const API_URL = "https://api.example.com";
+   
+   // ✅ Good
+   const API_URL = import.meta.env.VITE_API_URL;
+   ```
+
+5. **인라인 스타일 남용**
+   ```typescript
+   // ❌ Bad
+   <div style={{ color: '#D4AF37', fontSize: '16px' }}>Text</div>
+   
+   // ✅ Good
+   <div className="text-[#D4AF37] text-base">Text</div>
+   ```
+
+### React 안티패턴
+❌ **절대 금지**:
+1. **useEffect 무한 루프**
+   ```typescript
+   // ❌ Bad - 의존성 배열 누락
+   useEffect(() => {
+     setCount(count + 1);
+   }); // 무한 루프!
+   
+   // ✅ Good
+   useEffect(() => {
+     // effect logic
+   }, [dependency]);
+   ```
+
+2. **Props drilling 과다**
+   ```typescript
+   // ❌ Bad - 5단계 이상 props 전달
+   <A prop={value}>
+     <B prop={value}>
+       <C prop={value}>
+         <D prop={value}>
+           <E prop={value} />
+   
+   // ✅ Good - Context 사용
+   <ContextProvider value={value}>
+     <E />
+   </ContextProvider>
+   ```
+
+3. **Key prop 누락**
+   ```typescript
+   // ❌ Bad
+   {items.map(item => <div>{item.name}</div>)}
+   
+   // ✅ Good
+   {items.map(item => <div key={item.id}>{item.name}</div>)}
+   ```
+
+4. **직접 State 변경**
+   ```typescript
+   // ❌ Bad
+   state.items.push(newItem);
+   
+   // ✅ Good
+   setState({ ...state, items: [...state.items, newItem] });
+   ```
+
+### Tailwind CSS 금지사항
+❌ **절대 금지**:
+1. **임의의 색상 값 하드코딩 (디자인 토큰 외)**
+   ```tsx
+   // ❌ Bad
+   <div className="bg-[#123456]">
+   
+   // ✅ Good - 디자인 토큰 사용
+   <div className="bg-[#D4AF37]"> // royal-gold
+   <div className="bg-[#0A0A0A]"> // dark-shadow
+   ```
+
+2. **!important 남용**
+   ```tsx
+   // ❌ Bad
+   <div className="!text-white !bg-black">
+   
+   // ✅ Good - 우선순위 조정
+   <div className="text-white bg-black">
+   ```
+
+### 보안 금지사항
+❌ **절대 금지**:
+1. **민감 정보 Git 커밋**
+   - API 키, 비밀번호, 토큰
+   - `.env` 파일 (`.env.example`만 허용)
+
+2. **eval() 사용**
+   ```typescript
+   // ❌ Bad - 절대 사용 금지
+   eval(userInput);
+   
+   // ✅ Good - 대안 사용
+   JSON.parse(validatedInput);
+   ```
+
+3. **dangerouslySetInnerHTML 무분별한 사용**
+   ```tsx
+   // ❌ Bad
+   <div dangerouslySetInnerHTML={{ __html: userInput }} />
+   
+   // ✅ Good - 검증 후 사용
+   <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userInput) }} />
+   ```
+
+### Git 금지사항
+❌ **절대 금지**:
+1. **main/master 브랜치에 직접 푸시**
+2. **force push (--force) 사용** (특별한 경우 제외)
+3. **의미 없는 커밋 메시지** ("fix", "update", "test")
+4. **node_modules 커밋**
+5. **빌드 파일 커밋** (build/, dist/)
+
+---
+
+## 5. 디렉토리 구조 (Directory Structure)
+
+### 현재 프로젝트 구조
+```
+C:\Project\example\
+│
+├── .git/                          # Git 저장소
+├── node_modules/                  # 의존성 (Git 제외)
+├── build/                         # 빌드 출력 (Git 제외)
+│
+├── public/                        # 정적 파일 (생성 권장)
+│   ├── favicon.ico
+│   ├── robots.txt
+│   └── assets/
+│       ├── images/
+│       └── fonts/
+│
+├── src/                           # 소스 코드
+│   │
+│   ├── components/                # 컴포넌트
+│   │   ├── ui/                    # 재사용 UI 컴포넌트 (shadcn/ui)
+│   │   │   ├── button.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── card.tsx
+│   │   │   └── ... (40+ 컴포넌트)
+│   │   │
+│   │   ├── figma/                 # Figma 관련 컴포넌트
+│   │   │   └── ImageWithFallback.tsx
+│   │   │
+│   │   ├── NavigationBar.tsx      # 네비게이션 바
+│   │   ├── HeroSection.tsx        # 히어로 섹션
+│   │   ├── StorySection.tsx       # 스토리 섹션
+│   │   ├── CharactersSection.tsx  # 캐릭터 섹션
+│   │   ├── RewardsSection.tsx     # 보상 섹션
+│   │   ├── ReferralSystem.tsx     # 추천인 시스템
+│   │   ├── ReservationForm.tsx    # 예약 폼
+│   │   └── Footer.tsx             # 푸터
+│   │
+│   ├── contexts/                  # React Context
+│   │   └── LanguageContext.tsx    # 언어 설정 Context
+│   │
+│   ├── lib/                       # 유틸리티 및 라이브러리
+│   │   └── i18n.ts               # 다국어 번역 데이터
+│   │
+│   ├── styles/                    # 스타일 파일
+│   │   └── globals.css           # 글로벌 CSS 변수
+│   │
+│   ├── guidelines/                # 개발 가이드라인
+│   │   └── Guidelines.md
+│   │
+│   ├── App.tsx                    # 메인 앱 컴포넌트
+│   ├── main.tsx                   # 앱 진입점
+│   └── index.css                  # Tailwind 진입점
+│
+├── .cursorrules                   # Cursor AI 규칙 (이 파일)
+├── .gitignore                     # Git 제외 파일
+├── index.html                     # HTML 템플릿
+├── package.json                   # 프로젝트 설정
+├── package-lock.json              # 의존성 잠금
+├── postcss.config.js              # PostCSS 설정
+├── tailwind.config.js             # Tailwind 설정
+├── vite.config.ts                 # Vite 설정
+└── README.md                      # 프로젝트 문서
+```
+
+### 디렉토리 규칙
+
+#### `/src/components/`
+**목적**: React 컴포넌트 저장
+- ✅ 페이지 섹션 컴포넌트 (대문자 시작)
+- ✅ 각 컴포넌트는 단일 파일
+- ❌ 비즈니스 로직 혼재 금지 (lib/로 분리)
+
+#### `/src/components/ui/`
+**목적**: 재사용 가능한 기본 UI 컴포넌트
+- ✅ shadcn/ui 스타일 컴포넌트
+- ✅ 순수 UI 컴포넌트만 (비즈니스 로직 없음)
+- ❌ 직접 수정 최소화 (shadcn/ui 업데이트 고려)
+
+#### `/src/contexts/`
+**목적**: React Context 파일
+- ✅ 전역 상태 관리
+- ✅ `[Name]Context.tsx` 형식
+- ✅ Provider와 Hook 함께 export
+
+#### `/src/lib/`
+**목적**: 유틸리티 함수 및 설정
+- ✅ 재사용 가능한 로직
+- ✅ API 클라이언트
+- ✅ 상수 및 설정
+- ❌ 컴포넌트 포함 금지
+
+#### `/src/styles/`
+**목적**: 글로벌 스타일
+- ✅ CSS 변수 정의 (디자인 토큰)
+- ✅ 커스텀 Tailwind 레이어
+- ❌ 컴포넌트별 스타일 금지 (Tailwind 사용)
+
+#### `/public/` (생성 권장)
+**목적**: 정적 파일
+```
+public/
+├── favicon.ico              # 파비콘
+├── robots.txt              # SEO 크롤러 설정
+├── assets/
+│   ├── images/             # 이미지 파일
+│   │   ├── characters/     # 캐릭터 이미지
+│   │   ├── backgrounds/    # 배경 이미지
+│   │   └── icons/          # 아이콘
+│   └── fonts/              # 웹 폰트
+```
+
+### 파일 명명 규칙
+
+#### 컴포넌트 파일
+```
+[ComponentName].tsx          # 컴포넌트
+[ComponentName].test.tsx     # 테스트 (선택)
+[ComponentName].stories.tsx  # Storybook (선택)
+```
+
+#### 유틸리티 파일
+```
+[utilityName].ts             # 유틸리티
+[utilityName].test.ts        # 테스트
+```
+
+#### 스타일 파일
+```
+globals.css                  # 글로벌 스타일
+index.css                    # Tailwind 진입점
+```
+
+### 추가 권장 구조 (확장 시)
+
+```
+src/
+├── hooks/                   # Custom React Hooks
+│   ├── useLocalStorage.ts
+│   ├── useMediaQuery.ts
+│   └── useDebounce.ts
+│
+├── types/                   # TypeScript 타입 정의
+│   ├── index.ts
+│   ├── api.ts
+│   └── models.ts
+│
+├── constants/               # 상수
+│   ├── index.ts
+│   ├── routes.ts
+│   └── config.ts
+│
+├── services/                # API 서비스
+│   ├── api.ts
+│   ├── auth.ts
+│   └── reservation.ts
+│
+└── utils/                   # 유틸리티 함수
+    ├── validators.ts
+    ├── formatters.ts
+    └── helpers.ts
+```
