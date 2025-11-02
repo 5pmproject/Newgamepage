@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 연결 테스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1a1a1a 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #D4AF37;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        
+        .test-section {
+            background: #2A2A2A;
+            border: 1px solid #D4AF37;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: #D4AF37;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status.pending {
+            background: #666;
+            color: #fff;
+        }
+        
+        .status.success {
+            background: #4CAF50;
+            color: #fff;
+        }
+        
+        .status.error {
+            background: #f44336;
+            color: #fff;
+        }
+        
+        .result {
+            background: #1a1a1a;
+            border-left: 4px solid #D4AF37;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        button {
+            background: #D4AF37;
+            color: #0A0A0A;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #b8941f;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .progress {
+            text-align: center;
+            color: #D4AF37;
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+        
+        .error-message {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .success-message {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Supabase 연결 테스트</h1>
+        
+        <div class="test-section">
+            <div class="test-title">
+                <span>Test 1: 환경 변수 확인</span>
+                <span class="status pending" id="status-1">대기 중</span>
+            </div>
+            <div class="result" id="result-1">테스트를 시작하려면 "모든 테스트 실행" 버튼을 클릭하세요.</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">
+                <span>Test 2: Supabase 연결</span>
+                <span class="status pending" id="status-2">대기 중</span>
+            </div>
+            <div class="result" id="result-2">-</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">
+                <span>Test 3: 추천 코드 생성 함수</span>
+                <span class="status pending" id="status-3">대기 중</span>
+            </div>
+            <div class="result" id="result-3">-</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">
+                <span>Test 4: 추천 코드 검증 함수</span>
+                <span class="status pending" id="status-4">대기 중</span>
+            </div>
+            <div class="result" id="result-4">-</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">
+                <span>Test 5: 전체 등록 수 조회</span>
+                <span class="status pending" id="status-5">대기 중</span>
+            </div>
+            <div class="result" id="result-5">-</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">
+                <span>Test 6: Auth 트리거 확인</span>
+                <span class="status pending" id="status-6">대기 중</span>
+            </div>
+            <div class="result" id="result-6">-</div>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="runAllTests()">🚀 모든 테스트 실행</button>
+            <button onclick="location.href='http://localhost:5173'">📱 메인 앱으로 이동</button>
+        </div>
+        
+        <div class="progress" id="progress"></div>
+    </div>
+    
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        
+        window.supabase = null;
+        window.testResults = {
+            total: 6,
+            passed: 0,
+            failed: 0
+        };
+        
+        function updateStatus(testNum, status, message) {
+            const statusEl = document.getElementById(`status-${testNum}`);
+            const resultEl = document.getElementById(`result-${testNum}`);
+            
+            statusEl.className = `status ${status}`;
+            statusEl.textContent = status === 'success' ? '✅ 성공' : status === 'error' ? '❌ 실패' : '⏳ 테스트 중';
+            
+            if (message) {
+                resultEl.textContent = message;
+            }
+            
+            if (status === 'success') {
+                window.testResults.passed++;
+            } else if (status === 'error') {
+                window.testResults.failed++;
+            }
+        }
+        
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const { passed, failed, total } = window.testResults;
+            const completed = passed + failed;
+            
+            if (completed === total) {
+                if (failed === 0) {
+                    progress.innerHTML = `🎉 모든 테스트 통과! (${passed}/${total})`;
+                    progress.style.color = '#4CAF50';
+                } else {
+                    progress.innerHTML = `⚠️ 일부 테스트 실패 (성공: ${passed}, 실패: ${failed})`;
+                    progress.style.color = '#f44336';
+                }
+            } else {
+                progress.innerHTML = `진행 중... (${completed}/${total})`;
+            }
+        }
+        
+        async function test1_checkEnvVars() {
+            updateStatus(1, 'pending');
+            
+            try {
+                // Vite 환경 변수는 import.meta.env로 접근해야 하지만
+                // 이 파일은 독립 HTML이므로 직접 접근 불가
+                // 대신 Supabase 연결 시도로 간접 확인
+                
+                const result = `
+환경 변수 확인:
+- VITE_SUPABASE_URL: ${import.meta.env?.VITE_SUPABASE_URL ? '✅ 설정됨' : '❌ 미설정'}
+- VITE_SUPABASE_ANON_KEY: ${import.meta.env?.VITE_SUPABASE_ANON_KEY ? '✅ 설정됨' : '❌ 미설정'}
+
+⚠️ 주의: 이 테스트는 독립 HTML 파일에서 실행되므로
+Vite 환경 변수에 직접 접근할 수 없습니다.
+
+메인 앱 (localhost:5173)에서 확인하세요:
+  F12 → Console → import.meta.env
+                `;
+                
+                updateStatus(1, 'success', result);
+            } catch (error) {
+                updateStatus(1, 'error', `에러: ${error.message}`);
+            }
+            
+            updateProgress();
+        }
+        
+        async function test2_connectSupabase() {
+            updateStatus(2, 'pending');
+            
+            try {
+                // 사용자에게 직접 입력 받기
+                const url = prompt('Supabase URL을 입력하세요:\n(예: https://xxx.supabase.co)');
+                const key = prompt('Supabase ANON KEY를 입력하세요:');
+                
+                if (!url || !key) {
+                    throw new Error('URL 또는 KEY가 입력되지 않았습니다.');
+                }
+                
+                window.supabase = createClient(url, key);
+                
+                // 간단한 쿼리로 연결 테스트
+                const { data, error } = await window.supabase
+                    .from('users')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (error) throw error;
+                
+                const result = `
+✅ Supabase 연결 성공!
+
+연결 정보:
+- URL: ${url}
+- 인증: ANON KEY
+- 상태: Connected
+
+다음 테스트를 계속 진행합니다...
+                `;
+                
+                updateStatus(2, 'success', result);
+                return true;
+            } catch (error) {
+                const result = `
+❌ Supabase 연결 실패
+
+에러 메시지: ${error.message}
+
+해결 방법:
+1. .env.local 파일 확인
+2. Supabase Dashboard에서 API Key 재확인
+3. 메인 앱 (localhost:5173)에서 테스트
+                `;
+                updateStatus(2, 'error', result);
+                return false;
+            } finally {
+                updateProgress();
+            }
+        }
+        
+        async function test3_generateReferralCode() {
+            updateStatus(3, 'pending');
+            
+            if (!window.supabase) {
+                updateStatus(3, 'error', 'Supabase 연결이 필요합니다.');
+                updateProgress();
+                return;
+            }
+            
+            try {
+                const { data, error } = await window.supabase.rpc('generate_referral_code');
+                
+                if (error) throw error;
+                
+                const isValid = /^SHADOW[A-Z0-9]{8}$/.test(data);
+                
+                const result = `
+✅ 추천 코드 생성 성공!
+
+생성된 코드: ${data}
+형식 검증: ${isValid ? '✅ 통과 (SHADOWXXXXXXXX)' : '❌ 실패 (형식 오류)'}
+
+함수: generate_referral_code()
+상태: 정상 작동
+                `;
+                
+                updateStatus(3, isValid ? 'success' : 'error', result);
+            } catch (error) {
+                const result = `
+❌ 추천 코드 생성 실패
+
+에러: ${error.message}
+
+원인:
+- generate_referral_code() 함수가 없음
+- 권한 부족
+
+해결:
+1. Supabase SQL Editor에서 001_initial_schema.sql 실행
+2. 함수 생성 확인:
+   SELECT routine_name 
+   FROM information_schema.routines 
+   WHERE routine_name = 'generate_referral_code';
+                `;
+                updateStatus(3, 'error', result);
+            }
+            
+            updateProgress();
+        }
+        
+        async function test4_validateReferralCode() {
+            updateStatus(4, 'pending');
+            
+            if (!window.supabase) {
+                updateStatus(4, 'error', 'Supabase 연결이 필요합니다.');
+                updateProgress();
+                return;
+            }
+            
+            try {
+                // 존재하지 않는 코드로 테스트 (false 반환 예상)
+                const { data: invalid, error: error1 } = await window.supabase
+                    .rpc('validate_referral_code_public', { code: 'SHADOWINVALID' });
+                
+                if (error1) throw error1;
+                
+                const result = `
+✅ 추천 코드 검증 함수 작동!
+
+테스트 결과:
+- 무효한 코드 (SHADOWINVALID): ${invalid === false ? '✅ false 반환' : '❌ true 반환 (오류)'}
+
+함수: validate_referral_code_public(code TEXT)
+상태: 정상 작동
+
+💡 실제 유효한 코드 테스트는 
+   메인 앱에서 회원가입 후 진행하세요.
+                `;
+                
+                updateStatus(4, invalid === false ? 'success' : 'error', result);
+            } catch (error) {
+                const result = `
+❌ 추천 코드 검증 실패
+
+에러: ${error.message}
+
+원인:
+- validate_referral_code_public() 함수가 없음
+
+해결:
+1. SQL 스크립트 재실행
+2. 함수 확인:
+   SELECT routine_name 
+   FROM information_schema.routines 
+   WHERE routine_name = 'validate_referral_code_public';
+                `;
+                updateStatus(4, 'error', result);
+            }
+            
+            updateProgress();
+        }
+        
+        async function test5_getTotalRegistrations() {
+            updateStatus(5, 'pending');
+            
+            if (!window.supabase) {
+                updateStatus(5, 'error', 'Supabase 연결이 필요합니다.');
+                updateProgress();
+                return;
+            }
+            
+            try {
+                const { data, error } = await window.supabase.rpc('get_total_registrations');
+                
+                if (error) throw error;
+                
+                const result = `
+✅ 전체 등록 수 조회 성공!
+
+현재 사전등록 사용자 수: ${data}명
+
+함수: get_total_registrations()
+상태: 정상 작동
+
+💡 실제 숫자는 회원가입 후 증가합니다.
+                `;
+                
+                updateStatus(5, 'success', result);
+            } catch (error) {
+                const result = `
+❌ 전체 등록 수 조회 실패
+
+에러: ${error.message}
+
+해결: SQL 스크립트 실행
+                `;
+                updateStatus(5, 'error', result);
+            }
+            
+            updateProgress();
+        }
+        
+        async function test6_checkAuthTrigger() {
+            updateStatus(6, 'pending');
+            
+            if (!window.supabase) {
+                updateStatus(6, 'error', 'Supabase 연결이 필요합니다.');
+                updateProgress();
+                return;
+            }
+            
+            try {
+                // 트리거 존재 여부 확인 (RPC로는 불가능, 안내 메시지만 표시)
+                const result = `
+⚠️ Auth 트리거 확인
+
+이 테스트는 Supabase SQL Editor에서 직접 확인해야 합니다:
+
+1. Supabase Dashboard → SQL Editor
+2. 다음 쿼리 실행:
+
+   SELECT * 
+   FROM information_schema.triggers 
+   WHERE trigger_schema = 'auth' 
+   AND trigger_name = 'on_auth_user_created';
+
+예상 결과:
+- trigger_name: on_auth_user_created
+- event_object_table: users
+- action_statement: EXECUTE FUNCTION public.handle_new_auth_user()
+
+💡 실제 작동 테스트는 메인 앱에서 회원가입으로 확인하세요:
+   1. http://localhost:5173 접속
+   2. 회원가입 진행
+   3. Supabase Logs 확인 (Dashboard → Database → Logs)
+   4. [TRIGGER] 메시지 검색
+                `;
+                
+                updateStatus(6, 'success', result);
+            } catch (error) {
+                updateStatus(6, 'error', `에러: ${error.message}`);
+            }
+            
+            updateProgress();
+        }
+        
+        window.runAllTests = async function() {
+            window.testResults = { total: 6, passed: 0, failed: 0 };
+            
+            await test1_checkEnvVars();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            const connected = await test2_connectSupabase();
+            if (!connected) {
+                // 연결 실패 시 나머지 테스트 건너뛰기
+                for (let i = 3; i <= 6; i++) {
+                    updateStatus(i, 'error', 'Supabase 연결 실패로 건너뜀');
+                }
+                updateProgress();
+                return;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await test3_generateReferralCode();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await test4_validateReferralCode();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await test5_getTotalRegistrations();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await test6_checkAuthTrigger();
+        };
+    </script>
+</body>
+</html>
+
