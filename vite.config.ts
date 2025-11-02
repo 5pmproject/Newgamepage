@@ -52,6 +52,28 @@
     build: {
       target: 'esnext',
       outDir: 'build',
+      // Production optimizations
+      minify: 'esbuild',
+      sourcemap: false,
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Vendor chunk for React ecosystem
+            'react-vendor': ['react', 'react-dom'],
+            // UI library chunk
+            'radix-ui': [
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-dropdown-menu',
+              '@radix-ui/react-select',
+              '@radix-ui/react-tabs',
+            ],
+            // Supabase chunk
+            'supabase': ['@supabase/supabase-js'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
     },
     server: {
       port: 3000,

@@ -1,0 +1,12 @@
+# Realm of Shadows - Robots.txt
+
+# Allow all bots
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://realmofshadows.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
