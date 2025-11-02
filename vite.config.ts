@@ -61,15 +61,24 @@
           manualChunks: {
             // Vendor chunk for React ecosystem
             'react-vendor': ['react', 'react-dom'],
-            // UI library chunk
+            // UI library chunk - Radix UI
             'radix-ui': [
               '@radix-ui/react-dialog',
               '@radix-ui/react-dropdown-menu',
               '@radix-ui/react-select',
               '@radix-ui/react-tabs',
+              '@radix-ui/react-accordion',
+              '@radix-ui/react-alert-dialog',
+              '@radix-ui/react-popover',
+              '@radix-ui/react-tooltip',
+              '@radix-ui/react-navigation-menu',
             ],
+            // Form & Validation
+            'form-vendor': ['react-hook-form', 'zod'],
             // Supabase chunk
             'supabase': ['@supabase/supabase-js'],
+            // UI utilities
+            'ui-utils': ['lucide-react', 'clsx', 'tailwind-merge', 'class-variance-authority'],
           },
         },
       },
