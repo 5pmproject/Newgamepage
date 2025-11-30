@@ -49,43 +49,52 @@
         '@': path.resolve(__dirname, './src'),
       },
     },
-    build: {
-      target: 'esnext',
-      outDir: 'build',
-      // Production optimizations
-      minify: 'esbuild',
-      sourcemap: false,
-      cssCodeSplit: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            // Vendor chunk for React ecosystem
-            'react-vendor': ['react', 'react-dom'],
-            // UI library chunk - Radix UI
-            'radix-ui': [
-              '@radix-ui/react-dialog',
-              '@radix-ui/react-dropdown-menu',
-              '@radix-ui/react-select',
-              '@radix-ui/react-tabs',
-              '@radix-ui/react-accordion',
-              '@radix-ui/react-alert-dialog',
-              '@radix-ui/react-popover',
-              '@radix-ui/react-tooltip',
-              '@radix-ui/react-navigation-menu',
-            ],
-            // Form & Validation
-            'form-vendor': ['react-hook-form', 'zod'],
-            // Supabase chunk
-            'supabase': ['@supabase/supabase-js'],
-            // UI utilities
-            'ui-utils': ['lucide-react', 'clsx', 'tailwind-merge', 'class-variance-authority'],
-          },
+  build: {
+    target: 'esnext',
+    outDir: 'build',
+    // Production optimizations
+    minify: 'esbuild',
+    sourcemap: false,
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for React ecosystem
+          'react-vendor': ['react', 'react-dom'],
+          // UI library chunk - Radix UI
+          'radix-ui': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-navigation-menu',
+          ],
+          // Form & Validation
+          'form-vendor': ['react-hook-form', 'zod'],
+          // Supabase chunk
+          'supabase': ['@supabase/supabase-js'],
+          // UI utilities
+          'ui-utils': ['lucide-react', 'clsx', 'tailwind-merge', 'class-variance-authority'],
         },
       },
-      chunkSizeWarningLimit: 1000,
     },
-    server: {
-      port: 3000,
-      open: true,
+    chunkSizeWarningLimit: 1000,
+  },
+  server: {
+    port: 3000,
+    open: true,
+    // HMR (Hot Module Replacement) 설정
+    hmr: {
+      // 개발 환경에서만 WebSocket 연결 활성화
+      overlay: true,
     },
+  },
+  // Preview 모드에서는 HMR 비활성화
+  preview: {
+    port: 3000,
+  },
   });

@@ -46,6 +46,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
     <!-- Content Security Policy -->
+    <!-- Note: frame-ancestors는 HTTP 헤더로만 작동하므로 vercel.json에 설정됨 -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
       script-src 'self' 'unsafe-inline' 'unsafe-eval';
@@ -53,7 +54,6 @@
       font-src 'self' https://fonts.gstatic.com;
       img-src 'self' data: https: blob:;
       connect-src 'self' https://*.supabase.co wss://*.supabase.co;
-      frame-ancestors 'none';
       base-uri 'self';
       form-action 'self';
     " />
