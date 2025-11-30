@@ -1,7 +1,9 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useABTest } from "../contexts/ABTestContext";
+import { trackExperimentEvent, trackExperimentEventBatch } from "../services/experimentService";
 
 const characterImages = [
   "https://images.unsplash.com/photo-1627732922021-e73df99d192e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXJrJTIwa25pZ2h0JTIwd2FycmlvcnxlbnwxfHx8fDE3NjE4MDgyOTR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
@@ -17,10 +19,100 @@ const characterStats = [
 
 export function CharactersSection() {
   const [selectedCharacter, setSelectedCharacter] = useState(0);
-  const { t } = useLanguage();
+  const [hasTrackedView, setHasTrackedView] = useState(false);
+  const { t, language } = useLanguage();
+  const { getVariant } = useABTest();
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  const variant = getVariant('card_hover_effect');
+  
+  // 섹션 뷰 트래킹 (Intersection Observer)
+  useEffect(() => {
+    if (!variant || hasTrackedView) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          trackExperimentEvent('card_hover_effect', variant, 'section_view', {
+            language,
+          });
+          setHasTrackedView(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, [variant, hasTrackedView, language]);
+  
+  // 카드 클릭 핸들러
+  const handleCardClick = (index: number, characterName: string) => {
+    setSelectedCharacter(index);
+    
+    if (variant) {
+      trackExperimentEvent('card_hover_effect', variant, 'card_click', {
+        character_index: index,
+        character_name: characterName,
+        language,
+      });
+    }
+  };
+  
+  // 카드 hover 핸들러 (variant만)
+  const handleCardHover = (index: number, characterName: string) => {
+    if (variant === 'variant') {
+      trackExperimentEventBatch('card_hover_effect', variant, 'card_hover', {
+        character_index: index,
+        character_name: characterName,
+        language,
+      });
+    }
+  };
+  
+  // Variant별 카드 스타일
+  const getCardStyles = (index: number) => {
+    const baseStyles = `relative cursor-pointer group ${
+      selectedCharacter === index ? "scale-105" : ""
+    }`;
+    
+    if (variant === 'variant') {
+      // Variant: 강화된 hover 효과 - 크게 확대 + 위로 튀어나오는 느낌
+      return `${baseStyles} transition-all duration-300 hover:scale-110 hover:-translate-y-2`;
+    }
+    
+    // Control: hover 효과 완전 제거
+    return baseStyles;
+  };
+  
+  // Variant별 컨테이너 스타일
+  const getCardContainerStyles = (index: number) => {
+    const isSelected = selectedCharacter === index;
+    
+    if (variant === 'variant') {
+      // Variant: 강화된 골드 그림자 효과
+      const baseStyles = `relative overflow-hidden rounded-lg border-2 transition-all duration-300 ${
+        isSelected
+          ? "border-[#D4AF37] shadow-2xl shadow-[#D4AF37]/30"
+          : "border-[#2A2A2A]"
+      }`;
+      return `${baseStyles} hover:border-[#D4AF37] hover:shadow-[0_20px_50px_rgba(212,175,55,0.4)]`;
+    }
+    
+    // Control: hover 효과 없음 (border 색상 변화도 제거)
+    const baseStyles = `relative overflow-hidden rounded-lg border-2 transition-all duration-300 ${
+      isSelected
+        ? "border-[#D4AF37] shadow-2xl shadow-[#D4AF37]/30"
+        : "border-[#2A2A2A]"
+    }`;
+    return baseStyles;
+  };
 
   return (
-    <section id="characters" className="relative bg-[#0A0A0A] py-32 px-4">
+    <section id="characters" ref={sectionRef} className="relative bg-[#0A0A0A] py-32 px-4">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -44,18 +136,11 @@ export function CharactersSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.15 }}
               viewport={{ once: true }}
-              className={`relative cursor-pointer group ${
-                selectedCharacter === index ? "scale-105" : ""
-              }`}
-              onClick={() => setSelectedCharacter(index)}
+              className={getCardStyles(index)}
+              onClick={() => handleCardClick(index, character.name)}
+              onMouseEnter={() => handleCardHover(index, character.name)}
             >
-              <div
-                className={`relative overflow-hidden rounded-lg border-2 transition-all duration-300 ${
-                  selectedCharacter === index
-                    ? "border-[#D4AF37] shadow-2xl shadow-[#D4AF37]/30"
-                    : "border-[#2A2A2A] hover:border-[#D4AF37]/50"
-                }`}
-              >
+              <div className={getCardContainerStyles(index)}>
                 <div className="aspect-[3/4] relative">
                   <ImageWithFallback
                     src={characterImages[index]}
