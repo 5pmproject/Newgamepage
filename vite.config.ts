@@ -5,6 +5,9 @@
 
   export default defineConfig({
     plugins: [react()],
+    esbuild: {
+      drop: [], // console, debugger 제거 방지 (A/B 테스트 디버깅용)
+    },
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
@@ -56,6 +59,10 @@
     minify: 'esbuild',
     sourcemap: false,
     cssCodeSplit: true,
+    // console.log를 프로덕션에서도 유지 (A/B 테스트 디버깅용)
+    esbuildOptions: {
+      drop: [], // 빈 배열로 설정하여 console.log 제거 방지
+    },
     rollupOptions: {
       output: {
         manualChunks: {

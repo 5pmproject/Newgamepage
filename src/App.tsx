@@ -63,8 +63,8 @@ export default function App() {
           
           <Toaster theme="dark" />
           
-          {/* A/B 테스트 모니터 (개발 환경에서만) */}
-          {import.meta.env.DEV && <ExperimentMonitor />}
+          {/* A/B 테스트 모니터 (모든 환경에서 표시) */}
+          <ExperimentMonitor />
         </div>
       </ABTestProvider>
     </LanguageProvider>

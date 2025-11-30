@@ -8,6 +8,7 @@ import { getExperimentSummary, type ExperimentSummary } from '../services/experi
 import { checkGuardrails } from '../services/guardrailService';
 import { EXPERIMENT_2_SAMPLE_SIZE } from '../utils/sampleSizeCalculator';
 import { X, RefreshCw, AlertTriangle, TrendingUp, Users } from 'lucide-react';
+import { useABTest } from '../contexts/ABTestContext';
 
 export function ExperimentMonitor() {
   const [summary, setSummary] = useState<ExperimentSummary | null>(null);
@@ -15,8 +16,37 @@ export function ExperimentMonitor() {
   const [isOpen, setIsOpen] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [violations, setViolations] = useState<string[]>([]);
+  const { getVariant } = useABTest();
   
   const requiredSample = EXPERIMENT_2_SAMPLE_SIZE * 2;
+  const currentVariant = getVariant('card_hover_effect');
+  
+  // 프로덕션에서도 보이는 시각적 표시 (최소화된 버전)
+  if (!isOpen && import.meta.env.PROD) {
+    return (
+      <div
+        onClick={() => setIsOpen(true)}
+        style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          background: currentVariant === 'control' ? '#4CAF50' : '#2196F3',
+          color: 'white',
+          padding: '8px 12px',
+          borderRadius: '6px',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          zIndex: 9999,
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+          fontFamily: 'monospace',
+        }}
+        title="Click to open A/B Test Monitor"
+      >
+        🧪 A/B: {currentVariant || 'loading...'}
+      </div>
+    );
+  }
   
   async function loadMetrics() {
     setIsLoading(true);
