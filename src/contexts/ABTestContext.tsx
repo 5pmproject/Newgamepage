@@ -20,8 +20,17 @@ export function ABTestProvider({ children }: { children: ReactNode }) {
   const [isExcluded] = useState(() => shouldExcludeFromExperiment());
 
   useEffect(() => {
+    console.log('🚀 [ABTest] ABTestProvider initialized');
+    console.log('📊 [ABTest] Environment:', {
+      DEV: import.meta.env.DEV,
+      MODE: import.meta.env.MODE,
+      SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+    });
+    console.log('🔒 [ABTest] Is Excluded:', isExcluded);
+    
     async function loadExperiments() {
       if (isExcluded) {
+        console.log('⚠️ [ABTest] User excluded from experiment');
         // 제외된 사용자는 모두 control로 설정
         setVariants({ card_hover_effect: 'control' });
         setIsLoading(false);
@@ -29,22 +38,23 @@ export function ABTestProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        console.log('🔄 [ABTest] Loading experiment assignment...');
         // 실험 배정 가져오기
         const variant = await getOrAssignExperiment('card_hover_effect');
+        console.log('✅ [ABTest] Experiment loaded successfully');
         setVariants({ card_hover_effect: variant });
         
-        if (import.meta.env.DEV) {
-          console.log('[ABTest] Loaded experiment:', {
-            experimentId: 'card_hover_effect',
-            variant,
-          });
-        }
+        console.log('🎯 [ABTest] Loaded experiment:', {
+          experimentId: 'card_hover_effect',
+          variant,
+        });
       } catch (error) {
-        console.error('[ABTest] Failed to load experiments:', error);
+        console.error('❌ [ABTest] Failed to load experiments:', error);
         // 에러 시 기본값 사용
         setVariants({ card_hover_effect: 'control' });
       } finally {
         setIsLoading(false);
+        console.log('🏁 [ABTest] Loading complete');
       }
     }
     

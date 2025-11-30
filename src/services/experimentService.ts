@@ -8,6 +8,13 @@ import type { ExperimentId, Variant, EventType, ExperimentEvent } from '../types
 const SESSION_KEY = 'experiment_session_id';
 const EXCLUDE_KEY = 'exclude_from_experiments';
 
+// 강제 로그 함수 (항상 출력)
+const forceLog = (message: string, ...args: any[]) => {
+  if (typeof window !== 'undefined') {
+    window.console.log(`[Experiment] ${message}`, ...args);
+  }
+};
+
 // ================================================
 // 세션 ID 관리
 // ================================================
@@ -21,6 +28,9 @@ export function getOrCreateSessionId(): string {
   if (!sessionId) {
     sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem(SESSION_KEY, sessionId);
+    forceLog('🆔 Created new session ID:', sessionId);
+  } else {
+    forceLog('🆔 Using existing session ID:', sessionId);
   }
   
   return sessionId;
@@ -36,6 +46,7 @@ export function getOrCreateSessionId(): string {
 export function shouldExcludeFromExperiment(): boolean {
   // 개발자 제외 플래그 확인
   if (localStorage.getItem(EXCLUDE_KEY) === 'true') {
+    forceLog('🚫 User excluded by flag');
     return true;
   }
   
@@ -44,10 +55,11 @@ export function shouldExcludeFromExperiment(): boolean {
   const isBot = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot/i.test(userAgent);
   
   if (isBot) {
-    console.log('[Experiment] Bot detected, excluding from experiment');
+    forceLog('🤖 Bot detected, excluding from experiment');
     return true;
   }
   
+  forceLog('✅ User eligible for experiment');
   return false;
 }
 
@@ -72,14 +84,19 @@ export function toggleExcludeFromExperiments(): boolean {
  * @returns Control 또는 Variant
  */
 export async function getOrAssignExperiment(experimentId: ExperimentId): Promise<Variant> {
+  forceLog('🎲 Starting experiment assignment for:', experimentId);
+  
   // 실험 제외 대상인지 확인
   if (shouldExcludeFromExperiment()) {
+    forceLog('⚠️ User excluded, returning control');
     return 'control'; // 기본값 반환
   }
   
   const sessionId = getOrCreateSessionId();
+  forceLog('📝 Session ID:', sessionId);
   
   try {
+    forceLog('🔍 Checking existing assignment from Supabase...');
     // 1. 기존 배정 확인
     const { data: existing, error: fetchError } = await supabase
       .from('experiment_assignments')
@@ -89,6 +106,7 @@ export async function getOrAssignExperiment(experimentId: ExperimentId): Promise
       .maybeSingle();
     
     if (fetchError) {
+      forceLog('❌ Error fetching assignment:', fetchError);
       console.error('[Experiment] Error fetching assignment:', fetchError);
       return getLocalVariant(experimentId);
     }
@@ -96,12 +114,14 @@ export async function getOrAssignExperiment(experimentId: ExperimentId): Promise
     if (existing) {
       // 기존 배정 사용
       const variant = existing.variant as Variant;
+      forceLog('✅ Found existing assignment:', variant);
       localStorage.setItem(`exp_${experimentId}`, variant);
       return variant;
     }
     
     // 2. 새 배정 생성 (50:50)
     const variant: Variant = Math.random() < 0.5 ? 'control' : 'variant';
+    forceLog('🎯 Creating new assignment:', variant);
     
     const { error: insertError } = await supabase
       .from('experiment_assignments')
@@ -112,15 +132,20 @@ export async function getOrAssignExperiment(experimentId: ExperimentId): Promise
       });
     
     if (insertError) {
+      forceLog('❌ Error creating assignment:', insertError);
       console.error('[Experiment] Error creating assignment:', insertError);
       return getLocalVariant(experimentId);
     }
     
     // 로컬스토리지에 저장
     localStorage.setItem(`exp_${experimentId}`, variant);
+    localStorage.setItem('ab_test_timestamp', new Date().toISOString());
+    forceLog('💾 Saved to localStorage:', variant);
+    
     return variant;
     
   } catch (error) {
+    forceLog('❌ Assignment error:', error);
     console.error('[Experiment] Assignment error:', error);
     return getLocalVariant(experimentId);
   }
